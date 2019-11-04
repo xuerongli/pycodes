@@ -1,3 +1,73 @@
+# 判断是否ZIP文件
+import zipfile
+print(zipfile.is_zipfile('samples/archive.zip'))
+True
+
+# 读取文件系统
+import zipfile
+zf = zipfile.ZipFile('samples/archive.zip','r')
+# list filenames
+for name in zf.namelist():
+    print name
+#
+for info in zf.infolist():
+    print info.filename, info.date_time, info.file_size
+
+# 提取数据
+# 用read() 方法，以filename作为参数，以string形式返回数据
+zf = zipfile.ZipFile('samples/archive.zip')
+for filename in zf.namelist():
+    # can use other than namelist,['there.txt','notthere.txt']
+    try:
+        data = zf.read(filename) # extract use read()
+    except KeyError:
+        print "Error: Did not find %s in zip file" % filename
+    else:
+        print filename, ':',
+        print repr(data)
+
+
+# 解压数据extract()
+zf = zipfile.ZipFile('samples/archive.zip','r')
+# Extract a member from the archive to the current working directory
+zf.extract('a.txt') # you may want to specify path param
+
+# Extract all members from the archive to the current working directory
+zf.extractall() # you may want to specify path param
+
+# 压缩数据
+# 创建新的zip文件，只需要初始化一个新的ZipFile即可，用w模式，要添加数据，用write()方法即可
+print('creating archive')
+zf = zipfile.ZipFile('zipfile_write.zip',mode='w')
+try:
+    print('adding readme.txt')
+    zf.write('readme.txt')
+finally:
+    print('closing')
+    zf.close()
+
+# 默认没有只是打包，没有压缩数据，如果压缩，需要用zlib模块。默认压缩模式zipfile.ZIP_STORED，可以改变为zipfile.ZIP_DEFLATED
+#
+# try to change compression type
+try:
+    import zlib
+    compression = zipfile.ZIP_DEFLATED
+except:
+    compression = zipfile.ZIP_STORED
+
+modes = {zipfile.ZIP_DEFLATED: 'deflated', zipfile.ZIP_STORED: 'stored'}
+print('creating archive')
+zf = zipfile.ZipFile('zipfile_write_compression.zip',mode='w')
+try:
+    print('adding README.txt with compression mode'+ str(modes[compression]))
+    zf.write('readme.txt',compress_type=compression)
+finally:
+    print('closing')
+    zf.close()
+
+
+##===================================================================================================
+
 import os
 import shutil
 import zipfile
