@@ -1,0 +1,3 @@
+# to_dict Insert a Pandas Dataframe into mongodb using PyMongo
+# import data from mongodb to pandas
+
