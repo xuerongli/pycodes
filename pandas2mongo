@@ -1,3 +1,98 @@
 # to_dict Insert a Pandas Dataframe into mongodb using PyMongo
 # import data from mongodb to pandas
 
+# 
+db.insert_many(df.to_dict('records'))
+
+
+# when mongo uri has alpha username, password
+odo(df, db.mycollection)
+
+###################
+
+
+
+
+#################
+import json
+dfData = json.dumps(df.to_dict('records'))
+savaData = {'_id': 'a8e42ed79f9dae1cefe8781760231ec0', 'df': dfData}
+res = client.insert_one(savaData)
+
+##### load dfData
+data = client.find_one({'_id': 'a8e42ed79f9dae1cefe8781760231ec0'}).get('df')
+dfData = json.loads(data)
+df = pd.DataFrame.from_dict(dfData)
+
+######################
+def write_df_to_mongoDB(  my_df,\
+                          database_name = 'mydatabasename' ,\
+                          collection_name = 'mycollectionname',
+                          server = 'localhost',\
+                          mongodb_port = 27017,\
+                          chunk_size = 100):
+    #"""
+    #This function take a list and create a collection in MongoDB (you should
+    #provide the database name, collection, port to connect to the remoete database,
+    #server of the remote database, local port to tunnel to the other machine)
+    #
+    #---------------------------------------------------------------------------
+    #Parameters / Input
+    #    my_list: the list to send to MongoDB
+    #    database_name:  database name
+    #
+    #    collection_name: collection name (to create)
+    #    server: the server of where the MongoDB database is hosted
+    #        Example: server = '132.434.63.86'
+    #    this_machine_port: local machine port.
+    #        For example: this_machine_port = '27017'
+    #    remote_port: the port where the database is operating
+    #        For example: remote_port = '27017'
+    #    chunk_size: The number of items of the list that will be send at the
+    #        some time to the database. Default is 100.
+    #
+    #Output
+    #    When finished will print "Done"
+    #----------------------------------------------------------------------------
+    #FUTURE modifications.
+    #1. Write to SQL
+    #2. Write to csv
+    #----------------------------------------------------------------------------
+    #30/11/2017: Rafael Valero-Fernandez. Documentation
+    #"""
+
+
+
+    #To connect
+    # import os
+    # import pandas as pd
+    # import pymongo
+    # from pymongo import MongoClient
+
+    client = MongoClient('localhost',int(mongodb_port))
+    db = client[database_name]
+    collection = db[collection_name]
+    # To write
+    collection.delete_many({})  # Destroy the collection
+    #aux_df=aux_df.drop_duplicates(subset=None, keep='last') # To avoid repetitions
+    my_list = my_df.to_dict('records')
+    l =  len(my_list)
+    ran = range(l)
+    steps=ran[chunk_size::chunk_size]
+    steps.extend([l])
+
+    # Inser chunks of the dataframe
+    i = 0
+    for j in steps:
+        print j
+        collection.insert_many(my_list[i:j]) # fill de collection
+        i = j
+
+    print('Done')
+    return
+    
+    ===
+    https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html
+    
+    
+    
